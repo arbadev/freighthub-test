@@ -1,3 +1,6 @@
+const readline = require('readline')
+const fs = require('fs')
+
 /**
  * first
  */
@@ -45,7 +48,9 @@ console.log('Third')
 const toInt = (i) => parseInt(i)
 const eq = (a, b) => a === b
 const getOcurrences = (element, array) => array.filter((item) => eq(element, item)).length
-
+const getUnion = (elements) => Array.from(new Set(elements))
+const unionResult = []
+let ended = false
 
 const verifyTtriangle = (elements) => {
   if (elements.length !== 3) return false
@@ -61,18 +66,34 @@ const verifySquare = (elements) => {
 
 const verifyRectangle = (elements) => {
   if (elements.length != 4) return false
-  const unique = Array.from(new Set(elements))
+  const unique = getUnion(elements)
   const [first, second] = unique
   const firstOcurrences = getOcurrences(first, elements)
   const secondOcurrences = getOcurrences(second, elements)
   return (eq(unique.length, 2) && eq(firstOcurrences, secondOcurrences))
 }
 
+const classify = (polygon) => {
+  polygon = polygon.map(toInt)
+  if (verifyTtriangle(polygon)) {
+    return 'Triangle'
+  } else if (verifySquare(polygon)) {
+    return 'Square'
+  } else if (verifyRectangle(polygon)) {
+    return 'Rectangle'
+  }
+  return 'Polygon'
+}
 
-const scuareElements = ['2', '2', '2', '2']
-const triangleElements = ['2', '2', '2']
-const rectangleElements = ['1', '1', '2', '2']
+const rl = readline.createInterface({
+  input: fs.createReadStream('polygons.txt'),
+  crlfDelay: Infinity,
+})
 
-console.log('is square ? ', verifySquare(scuareElements.map(toInt)))
-console.log('is triangle ? ', verifyTtriangle(triangleElements.map(toInt)))
-console.log('is rectangle ? ', verifyRectangle(rectangleElements.map(toInt)))
+rl.on('line', (line) => {
+  const polygonsArray = line.split(',')
+  const type = classify(polygonsArray)
+  unionResult.push(type)
+})
+
+rl.on('close', () => console.log(`Final Union ===> ${getUnion(unionResult)}`))
